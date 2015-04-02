@@ -19,30 +19,37 @@ import java.io.IOException;
  * Date: 16.03.2015
  */
 public class CountryMapperOld extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
-    private static final Logger LOG = Logger.getLogger(CountryMapperOld.class);
+    private static final Logger LOG = Logger.getRootLogger();
 
     private Text url = new Text();
 
     @Override
     public void map(LongWritable text, Text value, OutputCollector<Text, IntWritable> outputCollector, Reporter reporter) throws IOException {
-        LOG.info("Mapper: Value: " + value.toString());
+        infoMsg("Mapper: Value: " + value.toString());
 
-        String[] splittedIn = value.toString().split(" ");
-        LOG.info("Mapper: Split size: " + splittedIn.length);
+        String[] splittedIn = value.toString().split("\t");
+        infoMsg("Mapper: Split size: " + splittedIn.length);
 
         if (splittedIn.length == 3) {
             try {
                new Long(splittedIn[0]);
             } catch (NumberFormatException e) {
-                LOG.error("Is not a number: " + splittedIn[0]);
+                errorMsg("Is not a number: " + splittedIn[0]);
                 return;
             }
 
             url.set(splittedIn[2].trim());
             outputCollector.collect(url, new IntWritable(1));
         } else {
-            LOG.info("Split array has length not 3!!!");
+            infoMsg("Split array has length not 3!!!");
         }
+    }
 
+    private void infoMsg(String msg) {
+        LOG.info("<" + this.getClass().toString() + "> " + msg);
+    }
+
+    private void errorMsg(String msg) {
+        LOG.error("<" + this.getClass().toString() + "> " + msg);
     }
 }
